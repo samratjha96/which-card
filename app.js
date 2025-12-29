@@ -62,6 +62,8 @@ let currentView = 'all';
 let currentSort = 'name';
 let editingCardId = null;
 let selectedColor = '#6366f1';
+let activeMerchantMatch = null; // Tracks merchant lookup result
+let selectedMerchantCategory = null; // User's chosen category for multi-category merchants
 
 // DOM Elements
 const cardsGrid = document.getElementById('cardsGrid');
@@ -237,6 +239,20 @@ function bindEvents() {
     addRewardBtn.addEventListener('click', () => addRewardInput());
     searchInput.addEventListener('input', () => {
         updateQuickFilterState();
+        // Check if search term matches a merchant
+        const term = searchInput.value.trim();
+        if (term) {
+            activeMerchantMatch = findMerchant(term);
+            // Reset category selection when search changes
+            if (!activeMerchantMatch || activeMerchantMatch.categories.length <= 1) {
+                selectedMerchantCategory = null;
+            } else if (selectedMerchantCategory && !activeMerchantMatch.categories.includes(selectedMerchantCategory)) {
+                selectedMerchantCategory = null;
+            }
+        } else {
+            activeMerchantMatch = null;
+            selectedMerchantCategory = null;
+        }
         renderCards();
     });
     
@@ -368,6 +384,23 @@ function renderCards() {
     let bestCard = null;
     let bestPercent = 0;
     let matchedCategory = '';
+    
+    // Determine the effective search category
+    // If merchant matched and user selected a category, use that
+    // If merchant matched with single category, use that
+    // Otherwise use the raw search term
+    let effectiveSearchTerm = searchTerm;
+    let merchantInfo = null;
+    
+    if (activeMerchantMatch && activeMerchantMatch.categories.length > 0) {
+        merchantInfo = activeMerchantMatch;
+        if (selectedMerchantCategory) {
+            effectiveSearchTerm = selectedMerchantCategory;
+        } else if (activeMerchantMatch.categories.length === 1) {
+            effectiveSearchTerm = activeMerchantMatch.categories[0];
+        }
+        // If multiple categories and none selected, we'll show the picker
+    }
 
     if (searchTerm) {
         filteredCards = cards.filter(card => {
@@ -375,7 +408,7 @@ function renderCards() {
             if (card.issuer.toLowerCase().includes(searchTerm)) return true;
             
             for (const reward of card.rewards) {
-                if (matchesCategory(reward.categories.toLowerCase(), searchTerm)) {
+                if (matchesCategory(reward.categories.toLowerCase(), effectiveSearchTerm)) {
                     return true;
                 }
             }
@@ -384,7 +417,7 @@ function renderCards() {
 
         cards.forEach(card => {
             for (const reward of card.rewards) {
-                if (matchesCategory(reward.categories.toLowerCase(), searchTerm)) {
+                if (matchesCategory(reward.categories.toLowerCase(), effectiveSearchTerm)) {
                     if (reward.percent > bestPercent) {
                         bestPercent = reward.percent;
                         bestCard = card;
@@ -417,16 +450,47 @@ function renderCards() {
     } else {
         filteredCards = sortCards(filteredCards, currentSort);
     }
+    
+    // Build merchant category picker HTML if needed
+    let merchantPickerHtml = '';
+    if (merchantInfo && merchantInfo.categories.length > 1) {
+        const categoryButtons = merchantInfo.categories.map(cat => {
+            const displayName = getCategoryDisplayName(cat);
+            const isSelected = selectedMerchantCategory === cat;
+            return `<button class="merchant-category-btn ${isSelected ? 'active' : ''}" data-category="${cat}">${displayName}</button>`;
+        }).join('');
+        
+        merchantPickerHtml = `
+            <div class="merchant-category-picker">
+                <div class="merchant-picker-label">
+                    <span class="merchant-name">${escapeHtml(searchInput.value.trim())}</span> matches multiple categories:
+                </div>
+                <div class="merchant-category-buttons">
+                    ${categoryButtons}
+                </div>
+            </div>
+        `;
+    } else if (merchantInfo && merchantInfo.categories.length === 1) {
+        // Show a subtle indicator that we recognized the merchant
+        const displayName = getCategoryDisplayName(merchantInfo.categories[0]);
+        merchantPickerHtml = `
+            <div class="merchant-recognized">
+                <span class="merchant-name">${escapeHtml(searchInput.value.trim())}</span> → ${displayName}
+            </div>
+        `;
+    }
 
     if (filteredCards.length === 0) {
         updateCardCount(0);
         if (searchTerm) {
             cardsGrid.innerHTML = `
+                ${merchantPickerHtml}
                 <div class="no-results">
                     <p>No cards found for "${escapeHtml(searchTerm)}"</p>
                     <p style="margin-top: 8px; font-size: 0.85rem;">Try a different search or add a new card</p>
                 </div>
             `;
+            bindMerchantCategoryButtons();
         } else {
             cardsGrid.innerHTML = `
                 <div class="empty-state">
@@ -444,7 +508,7 @@ function renderCards() {
 
     updateCardCount(filteredCards.length);
 
-    cardsGrid.innerHTML = filteredCards.map(card => {
+    cardsGrid.innerHTML = merchantPickerHtml + filteredCards.map(card => {
         const isBest = bestCard && card.id === bestCard.id && searchTerm;
         const cardColor = card.color || '#6366f1';
         
@@ -464,7 +528,7 @@ function renderCards() {
                 </div>
                 <div class="rewards-section">
                     ${sortedRewards.map(reward => {
-                        const isMatchedReward = searchTerm && matchesCategory(reward.categories.toLowerCase(), searchTerm);
+                        const isMatchedReward = searchTerm && matchesCategory(reward.categories.toLowerCase(), effectiveSearchTerm);
                         const rotatingBadge = reward.rotating ? `<span class="rotating-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>Q</span>` : '';
                         return `
                             <div class="reward-row ${isMatchedReward ? 'matched-reward' : ''}">
@@ -484,6 +548,19 @@ function renderCards() {
             </div>
         `;
     }).join('');
+    
+    bindMerchantCategoryButtons();
+}
+
+// Bind click handlers for merchant category picker buttons
+function bindMerchantCategoryButtons() {
+    document.querySelectorAll('.merchant-category-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const category = e.target.dataset.category;
+            selectedMerchantCategory = category;
+            renderCards();
+        });
+    });
 }
 
 // Get CSS class for percent badge
@@ -782,6 +859,24 @@ function deleteCard(cardId) {
 function matchesCategory(categories, searchTerm) {
     if (categories.includes(searchTerm)) return true;
     
+    // Check merchant database keywords for the search term
+    // This allows searching "gas" to match cards with "fuel" category
+    const dbCategory = merchantDatabase[searchTerm];
+    if (dbCategory && dbCategory.keywords) {
+        for (const keyword of dbCategory.keywords) {
+            if (categories.includes(keyword)) return true;
+        }
+    }
+    
+    // Also check if any category in the database has this search term as a keyword
+    for (const [catName, catData] of Object.entries(merchantDatabase)) {
+        if (catData.keywords && catData.keywords.some(k => k.includes(searchTerm) || searchTerm.includes(k))) {
+            if (categories.includes(catName) || catData.keywords.some(k => categories.includes(k))) {
+                return true;
+            }
+        }
+    }
+    
     const aliases = {
         'groceries': ['grocery', 'groceries', 'supermarket', 'food'],
         'grocery': ['grocery', 'groceries', 'supermarket', 'food'],
@@ -805,7 +900,9 @@ function matchesCategory(categories, searchTerm) {
         'rent': ['rent', 'rental'],
         'fitness': ['fitness', 'gym', 'workout'],
         'transit': ['transit', 'metro', 'subway', 'bus', 'commute'],
-        'entertainment': ['entertainment', 'movies', 'concerts', 'events']
+        'entertainment': ['entertainment', 'movies', 'concerts', 'events'],
+        'rentalcars': ['rental cars', 'car rental', 'rent a car', 'car rentals'],
+        'wholesale': ['wholesale', 'costco', 'sam\'s club', 'bj\'s', 'warehouse']
     };
     
     const searchAliases = aliases[searchTerm] || [searchTerm];

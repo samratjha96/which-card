@@ -1041,3 +1041,68 @@ select:focus-visible {
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+/* Merchant Category Picker */
+.merchant-category-picker {
+    grid-column: 1 / -1;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 20px;
+}
+
+.merchant-picker-label {
+    font-size: 0.9rem;
+    color: var(--text-2);
+    margin-bottom: 12px;
+}
+
+.merchant-picker-label .merchant-name,
+.merchant-recognized .merchant-name {
+    color: var(--text);
+    font-weight: 600;
+}
+
+.merchant-category-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.merchant-category-btn {
+    padding: 8px 16px;
+    background: var(--bg-inset);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-2);
+    font-family: var(--font);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.merchant-category-btn:hover {
+    border-color: var(--accent);
+    color: var(--text);
+    background: rgba(99, 102, 241, 0.1);
+}
+
+.merchant-category-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+}
+
+/* Merchant Recognized Indicator */
+.merchant-recognized {
+    grid-column: 1 / -1;
+    padding: 10px 16px;
+    background: rgba(99, 102, 241, 0.1);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 0.85rem;
+    color: var(--text-2);
+}
