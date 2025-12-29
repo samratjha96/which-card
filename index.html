@@ -1,0 +1,279 @@
+<!-- ABOUTME: Credit card rewards cheat sheet web app -->
+<!-- ABOUTME: Allows users to add cards, track cashback percentages, and find the best card for a purchase -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Primary Meta Tags -->
+    <title>Which Card — Find the Best Credit Card for Every Purchase</title>
+    <meta name="title" content="Which Card — Find the Best Credit Card for Every Purchase">
+    <meta name="description" content="Stop leaving cashback on the table. Which Card instantly tells you which credit card to use for maximum rewards on groceries, gas, dining, travel, and more.">
+    <meta name="keywords" content="credit card rewards, cashback calculator, best credit card, credit card optimizer, maximize cashback, rewards tracker, credit card comparison, which card to use, cashback categories, rotating categories">
+    <meta name="author" content="Which Card">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://whichcard.app/">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://whichcard.app/">
+    <meta property="og:title" content="Which Card — Find the Best Credit Card for Every Purchase">
+    <meta property="og:description" content="Stop leaving cashback on the table. Instantly find which credit card gives you the best rewards for any purchase.">
+    <meta property="og:image" content="https://whichcard.app/og-image.png">
+    <meta property="og:site_name" content="Which Card">
+    <meta property="og:locale" content="en_US">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://whichcard.app/">
+    <meta name="twitter:title" content="Which Card — Find the Best Credit Card for Every Purchase">
+    <meta name="twitter:description" content="Stop leaving cashback on the table. Instantly find which credit card gives you the best rewards for any purchase.">
+    <meta name="twitter:image" content="https://whichcard.app/og-image.png">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='10' y='25' width='80' height='50' rx='8' fill='%236366f1'/><rect x='10' y='40' width='80' height='10' fill='%234f46e5'/></svg>">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#0c0c0f">
+    <meta name="msapplication-TileColor" content="#0c0c0f">
+    
+    <!-- Preconnect to external resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Structured Data / JSON-LD -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Which Card",
+        "description": "A free tool to find the best credit card for every purchase. Track your cards, compare cashback rates, and maximize your rewards.",
+        "url": "https://whichcard.app",
+        "applicationCategory": "FinanceApplication",
+        "operatingSystem": "Any",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        },
+        "featureList": [
+            "Track multiple credit cards",
+            "Compare cashback percentages",
+            "Find best card for any purchase category",
+            "Track rotating category bonuses",
+            "Export and import card data",
+            "Works offline"
+        ],
+        "screenshot": "https://whichcard.app/screenshot.png",
+        "softwareVersion": "1.0",
+        "author": {
+            "@type": "Organization",
+            "name": "Which Card"
+        }
+    }
+    </script>
+
+    <!-- FAQ Structured Data for SEO -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "How do I know which credit card to use?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Which Card helps you find the best credit card for any purchase by comparing your cards' cashback rates across categories like groceries, gas, dining, and travel. Simply search for a category and see which card gives you the highest rewards."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Is Which Card free to use?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes, Which Card is completely free. Your card data is stored locally in your browser and never sent to any server."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How do rotating credit card categories work?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Some credit cards like Chase Freedom Flex and Discover it offer 5% cashback on rotating categories that change quarterly. Which Card lets you track these rotating bonuses so you always know which card to use."
+                }
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <a href="#cardsGrid" class="skip-link">Skip to cards</a>
+    
+    <div class="app">
+        <!-- Left Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <h1>Which Card</h1>
+                <p>Maximize your rewards</p>
+            </div>
+
+            <div class="sidebar-search">
+                <input type="text" class="search-input" id="searchInput" 
+                       placeholder="Where are you shopping?"
+                       aria-label="Search cards or categories">
+                <div class="search-hint">Try: groceries, gas, dining <kbd class="kbd">⌘K</kbd></div>
+            </div>
+
+            <div class="filter-section">
+                <div class="filter-label">Quick Filters</div>
+                <div class="quick-filters" id="quickFilters" role="group" aria-label="Quick category filters">
+                    <button class="filter-pill" data-filter="groceries">Groceries</button>
+                    <button class="filter-pill" data-filter="gas">Gas</button>
+                    <button class="filter-pill" data-filter="restaurants">Dining</button>
+                    <button class="filter-pill" data-filter="amazon">Amazon</button>
+                    <button class="filter-pill" data-filter="travel">Travel</button>
+                    <button class="filter-pill" data-filter="streaming">Streaming</button>
+                </div>
+            </div>
+
+            <div class="sidebar-actions">
+                <button class="add-btn" id="addCardBtn">
+                    <span>+</span> Add Card
+                </button>
+                <button class="settings-btn" id="settingsBtn" title="Settings">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
+                    Settings
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main">
+            <div class="top-bar">
+                <div class="page-title">
+                    <h2>My Cards</h2>
+                    <span class="card-count" id="cardCount"></span>
+                </div>
+                <div class="top-actions">
+                    <div class="tab-buttons">
+                        <button class="tab-btn active" data-view="all">All</button>
+                        <button class="tab-btn" data-view="best">Best Match</button>
+                    </div>
+                    <select class="sort-select" id="sortSelect" aria-label="Sort cards">
+                        <option value="name">A-Z</option>
+                        <option value="name-desc">Z-A</option>
+                        <option value="reward-desc">Highest Reward</option>
+                        <option value="issuer">By Issuer</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="cards-grid" id="cardsGrid" role="list" aria-label="Credit cards">
+                <!-- Cards will be rendered here -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast" role="alert" aria-live="polite"></div>
+
+    <!-- Add/Edit Card Modal -->
+    <div class="modal-overlay" id="cardModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add New Card</h2>
+                <button class="close-btn" id="closeModal" aria-label="Close modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="cardId">
+                <input type="hidden" id="cardColor" value="#6366f1">
+                <div class="form-group">
+                    <label for="cardName">Card Name</label>
+                    <input type="text" id="cardName" placeholder="e.g., Chase Freedom Flex">
+                </div>
+                <div class="form-group">
+                    <label for="cardIssuer">Issuer</label>
+                    <input type="text" id="cardIssuer" placeholder="e.g., Chase">
+                </div>
+                <div class="form-group">
+                    <label for="cardLastFour">Last 4 Digits (optional)</label>
+                    <input type="text" id="cardLastFour" placeholder="e.g., 1234" maxlength="4" pattern="[0-9]*" inputmode="numeric">
+                </div>
+                <div class="form-group">
+                    <label for="cardNotes">Notes (optional)</label>
+                    <input type="text" id="cardNotes" placeholder="e.g., $95 annual fee">
+                </div>
+                <div class="form-group">
+                    <label for="baseReward">Base Cashback (%)</label>
+                    <input type="number" id="baseReward" placeholder="1" min="0" max="10" step="0.5" value="1">
+                </div>
+
+                <div class="form-group">
+                    <label>Card Color</label>
+                    <div class="color-picker" id="colorPicker" role="radiogroup" aria-label="Card color">
+                        <div class="color-option selected" data-color="#6366f1" style="background: #6366f1" role="radio" aria-checked="true" aria-label="Purple" tabindex="0"></div>
+                        <div class="color-option" data-color="#22c55e" style="background: #22c55e" role="radio" aria-checked="false" aria-label="Green" tabindex="-1"></div>
+                        <div class="color-option" data-color="#f59e0b" style="background: #f59e0b" role="radio" aria-checked="false" aria-label="Orange" tabindex="-1"></div>
+                        <div class="color-option" data-color="#ef4444" style="background: #ef4444" role="radio" aria-checked="false" aria-label="Red" tabindex="-1"></div>
+                        <div class="color-option" data-color="#ec4899" style="background: #ec4899" role="radio" aria-checked="false" aria-label="Pink" tabindex="-1"></div>
+                        <div class="color-option" data-color="#8b5cf6" style="background: #8b5cf6" role="radio" aria-checked="false" aria-label="Violet" tabindex="-1"></div>
+                        <div class="color-option" data-color="#06b6d4" style="background: #06b6d4" role="radio" aria-checked="false" aria-label="Cyan" tabindex="-1"></div>
+                        <div class="color-option" data-color="#71717a" style="background: #71717a" role="radio" aria-checked="false" aria-label="Gray" tabindex="-1"></div>
+                    </div>
+                </div>
+
+                <div class="rewards-form">
+                    <h4>Category Rewards</h4>
+                    <div id="rewardsContainer">
+                        <!-- Dynamic reward inputs -->
+                    </div>
+                    <button type="button" class="add-reward-btn" id="addRewardBtn">+ Add Category Reward</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="cancel-btn" id="cancelBtn">Cancel</button>
+                <button class="save-btn" id="saveBtn">Save Card</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="settingsTitle">Settings</h2>
+                <button class="close-btn" id="closeSettings" aria-label="Close settings">&times;</button>
+            </div>
+            <div class="settings-content">
+                <div class="settings-section">
+                    <h4>Data Management</h4>
+                    <p>Export your cards to back them up or import from a previous backup.</p>
+                    <div class="data-actions">
+                        <button class="data-btn" id="exportBtn">Export</button>
+                        <button class="data-btn" id="importBtn">Import</button>
+                    </div>
+                    <input type="file" id="importInput" accept=".json" aria-hidden="true">
+                </div>
+                <div class="settings-section">
+                    <h4>Reset Data</h4>
+                    <p>Clear all cards and start fresh with sample data.</p>
+                    <button class="data-btn" id="resetBtn" style="border-color: var(--red); color: var(--red);">
+                        Reset to Defaults
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
